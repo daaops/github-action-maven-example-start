@@ -1,51 +1,29 @@
-name: CI-CD
+name: Deploy Application
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
 
 jobs:
-
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm test
-
-      - name: Build application
-        run: npm run build
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: application
-          path: ./dist
-
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
 
+    environment:
+      name: ${{ inputs.environment }}
+
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: application
+      - name: Show selected environment
+        run: |
+          echo "Selected environment: ${{ inputs.environment }}"
 
-      - name: Deploy application
-        run: echo "Deploying application..."
-
-        
+      - name: Deploy
+        run: |
+          echo "Deploying application to ${{ inputs.environment }}"
